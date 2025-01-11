@@ -2,7 +2,7 @@ from flask import Flask
 
 from .config import Config
 from .database import db, init_db
-from .routes import main  # Import the main blueprint
+from .routes import actors_bp, movies_bp
 
 
 def create_app():
@@ -17,7 +17,8 @@ def create_app():
     init_db(app)
 
     # Register blueprints
-    app.register_blueprint(main)
+    app.register_blueprint(actors_bp)
+    app.register_blueprint(movies_bp)
 
     return app
 

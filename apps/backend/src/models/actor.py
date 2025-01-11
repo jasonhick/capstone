@@ -8,8 +8,9 @@ class Actor(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
+    age = db.Column(db.Integer, nullable=False)
+    gender = db.Column(db.String, nullable=False)
     birthdate = db.Column(db.Date)
 
-    # movies = db.relationship(
-    #     "Movie", secondary=movie_actor_association, back_populates="actors"
-    # )
+    # Relationship with movies
+    movies = db.relationship("Movie", secondary="movie_actor", back_populates="actors")
