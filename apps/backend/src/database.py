@@ -1,3 +1,4 @@
+from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import MetaData
 
@@ -12,11 +13,15 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 db = SQLAlchemy(metadata=metadata)
+migrate = Migrate()
 
 
 def init_db(app):
     # Import models here to ensure they're registered with SQLAlchemy
     from backend.src.models import actor, movie
+
+    db.init_app(app)
+    migrate.init_app(app, db)
 
     with app.app_context():
         db.create_all()

@@ -10,10 +10,7 @@ def create_app():
     app.config.from_object(Config)
     app.url_map.strict_slashes = False  # This disables the automatic redirect
 
-    # Initialize extensions
-    db.init_app(app)
-
-    # Initialize database and models
+    # Initialize database and models (this will also init the app)
     init_db(app)
 
     # Register blueprints
