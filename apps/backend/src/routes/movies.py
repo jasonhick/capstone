@@ -12,12 +12,7 @@ register_error_handlers(movies_bp)
 def get_movies():
     try:
         movies = Movie.query.all()
-        return (
-            jsonify(
-                {"success": True, "movies": [movie.serialize() for movie in movies]}
-            ),
-            200,
-        )
+        return jsonify([movie.serialize() for movie in movies]), 200
     except Exception as e:
         abort(500)
 
@@ -60,7 +55,7 @@ def update_movie(movie_id):
         movie.update()
 
         return (
-            jsonify({"success": True, "updated": movie.id, "movie": movie.serialize()}),
+            jsonify({"movie": movie.serialize()}),
             200,
         )
     except Exception as e:
@@ -82,16 +77,7 @@ def delete_movie(movie_id):
 def get_movie_actors(movie_id):
     try:
         movie = Movie.query.get_or_404(movie_id)
-        return (
-            jsonify(
-                {
-                    "success": True,
-                    "movie_id": movie_id,
-                    "actors": [actor.serialize_brief() for actor in movie.actors],
-                }
-            ),
-            200,
-        )
+        return jsonify([actor.serialize_brief() for actor in movie.actors]), 200
     except Exception as e:
         abort(404)
 
