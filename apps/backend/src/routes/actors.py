@@ -12,14 +12,18 @@ register_error_handlers(actors_bp)
 def get_actors():
     try:
         actors = Actor.query.all()
-        return (
-            jsonify(
-                {"success": True, "actors": [actor.serialize() for actor in actors]}
-            ),
-            200,
-        )
+        return jsonify([actor.serialize() for actor in actors]), 200
     except Exception as e:
         abort(500)
+
+
+@actors_bp.route("/actors/<int:actor_id>", methods=["GET"])
+def get_actor(actor_id):
+    try:
+        actor = Actor.query.get_or_404(actor_id)
+        return jsonify(actor.serialize()), 200
+    except Exception as e:
+        abort(404)
 
 
 @actors_bp.route("/actors", methods=["POST"])
@@ -92,12 +96,3 @@ def delete_actor(actor_id):
     except Exception as e:
         db.session.rollback()
         abort(422)
-
-
-@actors_bp.route("/actors/<int:actor_id>", methods=["GET"])
-def get_actor(actor_id):
-    try:
-        actor = Actor.query.get_or_404(actor_id)
-        return jsonify({"success": True, "actor": actor.serialize()}), 200
-    except Exception as e:
-        abort(404)
