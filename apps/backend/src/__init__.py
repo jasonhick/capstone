@@ -16,7 +16,7 @@ def create_app():
         app,
         resources={
             r"/api/*": {
-                "origins": ["http://127.0.0.1:3000"],
+                "origins": ["http://127.0.0.1:4200", "http://localhost:4200"],
                 "methods": ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
             }
