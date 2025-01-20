@@ -1,0 +1,10 @@
+<h1>Movies</h1>
+
+@if (movies().length) {
+  @for (movie of movies(); track movie.id) {
+    <div>
+      <h3>{{ movie.title }}</h3>
+      <p>Release Date: {{ movie.release_date }}</p>
+    </div>
+  }
+}

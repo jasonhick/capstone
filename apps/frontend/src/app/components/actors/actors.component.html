@@ -1,0 +1,10 @@
+<h1>Actors</h1>
+
+@if (actors().length) {
+  @for (actor of actors(); track actor.id) {
+    <div>
+      <h3>{{ actor.name }}</h3>
+      <p>Birth Date: {{ actor.birth_date }}</p>
+    </div>
+  }
+} 
