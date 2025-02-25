@@ -20,7 +20,7 @@ export class MoviesComponent {
     this.movieService
       .getMovies()
       .pipe(take(1))
-      .subscribe(movies => {
+      .subscribe((movies) => {
         this.movies.set(movies);
       });
   }

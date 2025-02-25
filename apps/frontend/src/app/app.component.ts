@@ -1,16 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoginButtonComponent } from './components/login-button/login-button.component';
+import { AuthService } from '@auth0/auth0-angular';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, LoginButtonComponent],
-  template: `
-    <app-login-button></app-login-button>
-    <router-outlet></router-outlet>
-  `,
+  imports: [CommonModule, RouterOutlet, LoginButtonComponent],
+  templateUrl: './app.component.html',
 })
 export class AppComponent {
-  title = 'Movie App';
+  private auth = inject(AuthService);
+  isAuthenticated$ = this.auth.isAuthenticated$;
 }

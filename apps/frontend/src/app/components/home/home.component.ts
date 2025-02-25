@@ -1,15 +1,18 @@
 import { Component } from '@angular/core';
-import { MovieService } from '../../services/movies/movies.service';
 import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
+import { NavMenuComponent } from '../nav-menu/nav-menu.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterOutlet, NavMenuComponent],
   template: `
-    <div class="container mx-auto p-4">
-      <h1 class="text-2xl font-bold mb-4">Welcome to Movies App</h1>
-      <p>You are now logged in!</p>
+    <div class="min-h-screen flex flex-col">
+      <app-nav-menu></app-nav-menu>
+      <main class="container mx-auto p-4 flex-grow">
+        <router-outlet></router-outlet>
+      </main>
     </div>
   `,
 })

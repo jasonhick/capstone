@@ -20,7 +20,7 @@ export class ActorsComponent {
     this.actorService
       .getActors()
       .pipe(take(1))
-      .subscribe(actors => {
+      .subscribe((actors) => {
         this.actors.set(actors);
       });
   }
