@@ -12,7 +12,7 @@ export interface Actor {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ActorService {
   private apiUrl = `${environment.apiUrl}/actors`;
@@ -43,4 +43,4 @@ export class ActorService {
   deleteActor(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-} 
+}

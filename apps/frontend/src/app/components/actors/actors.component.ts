@@ -9,16 +9,19 @@ import { ActorService, Actor } from '@services';
   selector: 'app-actors',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './actors.component.html'
+  templateUrl: './actors.component.html',
 })
 export class ActorsComponent {
   private actorService = inject(ActorService);
-  
+
   actors = signal<Actor[]>([]);
 
   ngOnInit() {
-    this.actorService.getActors().pipe(take(1)).subscribe(actors => {
-      this.actors.set(actors);
-    });
+    this.actorService
+      .getActors()
+      .pipe(take(1))
+      .subscribe(actors => {
+        this.actors.set(actors);
+      });
   }
-} 
+}

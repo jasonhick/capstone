@@ -8,18 +8,17 @@ import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(),
-        provideAuth0({
-          domain: 'dev-jasonhick.uk.auth0.com',
-          clientId: 'Q30m5bqg5PUMwCm4SLPmMgF45VQrKhwx',
-          authorizationParams: {
-            redirect_uri: window.location.origin,
-            audience: 'capstone-api',
-            scope: 'openid profile email permissions'
-          }
-        }
-      )
-  ]
+    provideAuth0({
+      domain: 'dev-jasonhick.uk.auth0.com',
+      clientId: 'Q30m5bqg5PUMwCm4SLPmMgF45VQrKhwx',
+      authorizationParams: {
+        redirect_uri: window.location.origin,
+        audience: 'capstone-api',
+        scope: 'openid profile email permissions',
+      },
+    }),
+  ],
 };
