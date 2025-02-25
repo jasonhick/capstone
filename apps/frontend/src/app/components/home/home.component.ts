@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { NavMenuComponent } from '../nav-menu/nav-menu.component';
+
+import { NavMenuComponent } from '@components';
 
 @Component({
   selector: 'app-home',
