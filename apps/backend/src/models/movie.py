@@ -1,4 +1,4 @@
-from backend.src.database import db
+from ..database import db
 
 # Create the association table
 movie_actor = db.Table(

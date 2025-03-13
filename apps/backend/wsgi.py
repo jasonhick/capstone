@@ -1,4 +1,3 @@
-import os
 import sys
 from pathlib import Path
 
@@ -6,7 +5,8 @@ from pathlib import Path
 root_path = Path(__file__).parent.parent
 sys.path.append(str(root_path))
 
-from backend.src import create_app
+# Use a relative import from the src package
+from src import create_app
 
 app = create_app()
 

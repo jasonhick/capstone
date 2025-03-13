@@ -18,7 +18,7 @@ migrate = Migrate()
 
 def init_db(app):
     # Import models here to ensure they're registered with SQLAlchemy
-    from backend.src.models import actor, movie
+    from .models import actor, movie
 
     db.init_app(app)
     migrate.init_app(app, db)

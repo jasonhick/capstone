@@ -1,4 +1,4 @@
-from backend.src.database import db
+from ..database import db
 
 # from .movie import movie_actor_association
 
