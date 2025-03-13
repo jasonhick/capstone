@@ -1,8 +1,9 @@
 from ..database import db
 from .associations import movie_actor
+from .base import BaseModel
 
 
-class Actor(db.Model):
+class Actor(db.Model, BaseModel):
     __tablename__ = "actors"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -35,28 +36,3 @@ class Actor(db.Model):
             "age": self.age,
             "gender": self.gender,
         }
-
-    def insert(self):
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return self
-        except:
-            db.session.rollback()
-            raise
-
-    def update(self):
-        try:
-            db.session.commit()
-            return self
-        except:
-            db.session.rollback()
-            raise
-
-    def delete(self):
-        try:
-            db.session.delete(self)
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise

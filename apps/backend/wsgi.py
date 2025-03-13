@@ -5,8 +5,8 @@ from pathlib import Path
 root_path = Path(__file__).parent.parent
 sys.path.append(str(root_path))
 
-# Use a relative import from the src package
-from src import create_app
+# Import from the backend.src package
+from backend.src import create_app
 
 app = create_app()
 

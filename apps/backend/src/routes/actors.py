@@ -3,7 +3,7 @@ from werkzeug.exceptions import BadRequest, NotFound, UnprocessableEntity
 
 from ..common import get_logger
 from ..common.error_handlers import APIError, handle_exception
-from ..database import db
+from ..database import DBTransaction, db
 from ..models import Actor
 from .error_handlers import register_error_handlers
 
@@ -18,7 +18,7 @@ logger = get_logger()
 @handle_exception
 def get_actors():
     logger.info("Fetching all actors")
-    actors = Actor.query.all()
+    actors = Actor.get_all()
     return jsonify([actor.serialize() for actor in actors]), 200
 
 
@@ -26,7 +26,7 @@ def get_actors():
 @handle_exception
 def get_actor(actor_id):
     logger.info(f"Fetching actor with ID: {actor_id}")
-    actor = Actor.query.get_or_404(actor_id)
+    actor = Actor.get_or_404(actor_id)
     return jsonify(actor.serialize()), 200
 
 
@@ -63,7 +63,7 @@ def create_actor():
 @actors_bp.route("/actors/<int:actor_id>", methods=["PATCH"])
 @handle_exception
 def update_actor(actor_id):
-    actor = Actor.query.get_or_404(actor_id)
+    actor = Actor.get_or_404(actor_id)
     data = request.get_json()
     logger.info(f"Updating actor with ID: {actor_id} with data: {data}")
 
@@ -77,8 +77,8 @@ def update_actor(actor_id):
         if "birthdate" in data:
             actor.birthdate = data["birthdate"]
 
-        actor.update()
-        logger.info(f"Successfully updated actor with ID: {actor_id}")
+        with DBTransaction(message=f"Updated actor with ID: {actor_id}"):
+            pass  # The transaction will commit automatically
 
         return (
             jsonify(
@@ -91,7 +91,6 @@ def update_actor(actor_id):
             200,
         )
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error updating actor with ID {actor_id}: {str(e)}")
         raise UnprocessableEntity("Could not update actor")
 
@@ -99,14 +98,14 @@ def update_actor(actor_id):
 @actors_bp.route("/actors/<int:actor_id>", methods=["DELETE"])
 @handle_exception
 def delete_actor(actor_id):
-    actor = Actor.query.get_or_404(actor_id)
+    actor = Actor.get_or_404(actor_id)
     logger.info(f"Deleting actor with ID: {actor_id}")
 
     try:
-        actor.delete()
-        logger.info(f"Successfully deleted actor with ID: {actor_id}")
+        with DBTransaction(message=f"Deleted actor with ID: {actor_id}"):
+            db.session.delete(actor)
+
         return jsonify({"success": True, "deleted": actor_id}), 200
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error deleting actor with ID {actor_id}: {str(e)}")
         raise UnprocessableEntity("Could not delete actor")

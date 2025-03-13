@@ -3,7 +3,7 @@ from werkzeug.exceptions import BadRequest, NotFound, UnprocessableEntity
 
 from ..common import get_logger
 from ..common.error_handlers import APIError, handle_exception
-from ..database import db
+from ..database import DBTransaction, db
 from ..models import Actor, Movie
 from .error_handlers import register_error_handlers
 
@@ -18,7 +18,7 @@ logger = get_logger()
 @handle_exception
 def get_movies():
     logger.info("Fetching all movies")
-    movies = Movie.query.all()
+    movies = Movie.get_all()
     return jsonify([movie.serialize() for movie in movies]), 200
 
 
@@ -26,7 +26,7 @@ def get_movies():
 @handle_exception
 def get_movie(movie_id):
     logger.info(f"Fetching movie with ID: {movie_id}")
-    movie = Movie.query.get_or_404(movie_id)
+    movie = Movie.get_or_404(movie_id)
     return jsonify(movie.serialize()), 200
 
 
@@ -59,7 +59,7 @@ def create_movie():
 @movies_bp.route("/movies/<int:movie_id>", methods=["PATCH"])
 @handle_exception
 def update_movie(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+    movie = Movie.get_or_404(movie_id)
     data = request.get_json()
     logger.info(f"Updating movie with ID: {movie_id} with data: {data}")
 
@@ -69,15 +69,14 @@ def update_movie(movie_id):
         if "release_date" in data:
             movie.release_date = data["release_date"]
 
-        movie.update()
-        logger.info(f"Successfully updated movie with ID: {movie_id}")
+        with DBTransaction(message=f"Updated movie with ID: {movie_id}"):
+            pass  # The transaction will commit automatically
 
         return (
             jsonify({"success": True, "updated": movie_id, "movie": movie.serialize()}),
             200,
         )
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error updating movie with ID {movie_id}: {str(e)}")
         raise UnprocessableEntity("Could not update movie")
 
@@ -85,15 +84,15 @@ def update_movie(movie_id):
 @movies_bp.route("/movies/<int:movie_id>", methods=["DELETE"])
 @handle_exception
 def delete_movie(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+    movie = Movie.get_or_404(movie_id)
     logger.info(f"Deleting movie with ID: {movie_id}")
 
     try:
-        movie.delete()
-        logger.info(f"Successfully deleted movie with ID: {movie_id}")
+        with DBTransaction(message=f"Deleted movie with ID: {movie_id}"):
+            db.session.delete(movie)
+
         return jsonify({"success": True, "deleted": movie_id}), 200
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error deleting movie with ID {movie_id}: {str(e)}")
         raise UnprocessableEntity("Could not delete movie")
 
@@ -102,14 +101,14 @@ def delete_movie(movie_id):
 @handle_exception
 def get_movie_actors(movie_id):
     logger.info(f"Fetching actors for movie with ID: {movie_id}")
-    movie = Movie.query.get_or_404(movie_id)
+    movie = Movie.get_or_404(movie_id)
     return jsonify([actor.serialize_brief() for actor in movie.actors]), 200
 
 
 @movies_bp.route("/movies/<int:movie_id>/actors", methods=["POST"])
 @handle_exception
 def add_movie_actor(movie_id):
-    movie = Movie.query.get_or_404(movie_id)
+    movie = Movie.get_or_404(movie_id)
     data = request.get_json()
     logger.info(f"Adding actor to movie with ID: {movie_id}, data: {data}")
 
@@ -118,16 +117,15 @@ def add_movie_actor(movie_id):
         raise BadRequest("Missing required field: actor_id")
 
     try:
-        actor = Actor.query.get_or_404(data["actor_id"])
-        movie.actors.append(actor)
-        movie.update()
-        logger.info(f"Successfully added actor {actor.id} to movie {movie_id}")
+        actor = Actor.get_or_404(data["actor_id"])
+
+        with DBTransaction(message=f"Added actor {actor.id} to movie {movie_id}"):
+            movie.actors.append(actor)
 
         return (
             jsonify({"success": True, "movie_id": movie_id, "actor_id": actor.id}),
             201,
         )
     except Exception as e:
-        db.session.rollback()
         logger.error(f"Error adding actor to movie {movie_id}: {str(e)}")
         raise UnprocessableEntity("Could not add actor to movie")

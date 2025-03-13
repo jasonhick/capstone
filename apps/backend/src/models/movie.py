@@ -1,8 +1,9 @@
 from ..database import db
 from .associations import movie_actor
+from .base import BaseModel
 
 
-class Movie(db.Model):
+class Movie(db.Model, BaseModel):
     __tablename__ = "movies"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -30,28 +31,3 @@ class Movie(db.Model):
             "title": self.title,
             "release_date": self.release_date.isoformat(),
         }
-
-    def insert(self):
-        try:
-            db.session.add(self)
-            db.session.commit()
-            return self
-        except:
-            db.session.rollback()
-            raise
-
-    def update(self):
-        try:
-            db.session.commit()
-            return self
-        except:
-            db.session.rollback()
-            raise
-
-    def delete(self):
-        try:
-            db.session.delete(self)
-            db.session.commit()
-        except:
-            db.session.rollback()
-            raise
