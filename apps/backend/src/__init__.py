@@ -1,9 +1,14 @@
 from flask import Flask, render_template
 from flask_cors import CORS
 
+from .common import get_logger
+from .common.error_handlers import register_error_handlers
 from .config import Config
 from .database import db, init_db
 from .routes import actors_bp, movies_bp
+
+# Get logger
+logger = get_logger()
 
 
 def create_app():
@@ -29,6 +34,11 @@ def create_app():
     # Register blueprints
     app.register_blueprint(actors_bp)
     app.register_blueprint(movies_bp)
+
+    # Register error handlers
+    register_error_handlers(app)
+
+    logger.info("Application initialized successfully")
 
     return app
 
