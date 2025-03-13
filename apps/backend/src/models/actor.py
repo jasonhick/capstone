@@ -1,6 +1,5 @@
 from ..database import db
-
-# from .movie import movie_actor_association
+from .associations import movie_actor
 
 
 class Actor(db.Model):
@@ -13,7 +12,7 @@ class Actor(db.Model):
     birthdate = db.Column(db.Date)
 
     # Relationship with movies
-    movies = db.relationship("Movie", secondary="movie_actor", back_populates="actors")
+    movies = db.relationship("Movie", secondary=movie_actor, back_populates="actors")
 
     def __repr__(self):
         return f"<Actor {self.name}>"

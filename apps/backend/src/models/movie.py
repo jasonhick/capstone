@@ -1,11 +1,5 @@
 from ..database import db
-
-# Create the association table
-movie_actor = db.Table(
-    "movie_actor",
-    db.Column("movie_id", db.Integer, db.ForeignKey("movies.id"), primary_key=True),
-    db.Column("actor_id", db.Integer, db.ForeignKey("actors.id"), primary_key=True),
-)
+from .associations import movie_actor
 
 
 class Movie(db.Model):
@@ -16,7 +10,7 @@ class Movie(db.Model):
     release_date = db.Column(db.Date, nullable=False)
 
     # Relationship with actors
-    actors = db.relationship("Actor", secondary="movie_actor", back_populates="movies")
+    actors = db.relationship("Actor", secondary=movie_actor, back_populates="movies")
 
     def __repr__(self):
         return f"<Movie {self.title}>"
