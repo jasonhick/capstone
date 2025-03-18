@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
 import { CommonModule } from '@angular/common';
+import { Observable } from 'rxjs';
 
 import { LoginButtonComponent } from '@components';
+import { AuthService } from '@services';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,6 @@ import { LoginButtonComponent } from '@components';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  private auth = inject(AuthService);
-  isAuthenticated$ = this.auth.isAuthenticated$;
+  private authService = inject(AuthService);
+  isAuthenticated$: Observable<boolean> = this.authService.isAuthenticated$;
 }

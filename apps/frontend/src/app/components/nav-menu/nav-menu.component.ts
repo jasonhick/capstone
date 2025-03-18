@@ -1,19 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService } from '@auth0/auth0-angular';
+import { Component } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
+
+import { LogoutButtonComponent } from '@components';
 
 @Component({
   selector: 'app-nav-menu',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, LogoutButtonComponent],
   templateUrl: './nav-menu.component.html',
 })
-export class NavMenuComponent {
-  private router = inject(Router);
-  private auth = inject(AuthService);
-
-  logout() {
-    this.auth.logout();
-    this.router.navigate(['/']);
-  }
-}
+export class NavMenuComponent {}
