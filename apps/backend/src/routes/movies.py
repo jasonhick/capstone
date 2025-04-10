@@ -1,11 +1,17 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.exceptions import BadRequest, NotFound, UnprocessableEntity
 
+from ..auth.auth import (
+    DELETE_MOVIES,
+    GET_MOVIES,
+    PATCH_MOVIES,
+    POST_MOVIES,
+    requires_auth,
+)
 from ..common import get_logger
-from ..common.error_handlers import APIError, handle_exception
+from ..common.error_handlers import APIError, handle_exception, register_error_handlers
 from ..database import DBTransaction, db
 from ..models import Actor, Movie
-from .error_handlers import register_error_handlers
 
 movies_bp = Blueprint("movies", __name__)
 register_error_handlers(movies_bp)
@@ -15,24 +21,27 @@ logger = get_logger()
 
 
 @movies_bp.route("/movies")
+@requires_auth(GET_MOVIES)
 @handle_exception
-def get_movies():
+def get_movies(payload):
     logger.info("Fetching all movies")
     movies = Movie.get_all()
     return jsonify([movie.serialize() for movie in movies]), 200
 
 
 @movies_bp.route("/movies/<int:movie_id>", methods=["GET"])
+@requires_auth(GET_MOVIES)
 @handle_exception
-def get_movie(movie_id):
+def get_movie(payload, movie_id):
     logger.info(f"Fetching movie with ID: {movie_id}")
     movie = Movie.get_or_404(movie_id)
     return jsonify(movie.serialize()), 200
 
 
 @movies_bp.route("/movies", methods=["POST"])
+@requires_auth(POST_MOVIES)
 @handle_exception
-def create_movie():
+def create_movie(payload):
     data = request.get_json()
     logger.info(f"Creating new movie with data: {data}")
 
@@ -57,8 +66,9 @@ def create_movie():
 
 
 @movies_bp.route("/movies/<int:movie_id>", methods=["PATCH"])
+@requires_auth(PATCH_MOVIES)
 @handle_exception
-def update_movie(movie_id):
+def update_movie(payload, movie_id):
     movie = Movie.get_or_404(movie_id)
     data = request.get_json()
     logger.info(f"Updating movie with ID: {movie_id} with data: {data}")
@@ -82,8 +92,9 @@ def update_movie(movie_id):
 
 
 @movies_bp.route("/movies/<int:movie_id>", methods=["DELETE"])
+@requires_auth(DELETE_MOVIES)
 @handle_exception
-def delete_movie(movie_id):
+def delete_movie(payload, movie_id):
     movie = Movie.get_or_404(movie_id)
     logger.info(f"Deleting movie with ID: {movie_id}")
 
@@ -98,16 +109,18 @@ def delete_movie(movie_id):
 
 
 @movies_bp.route("/movies/<int:movie_id>/actors", methods=["GET"])
+@requires_auth(GET_MOVIES)
 @handle_exception
-def get_movie_actors(movie_id):
+def get_movie_actors(payload, movie_id):
     logger.info(f"Fetching actors for movie with ID: {movie_id}")
     movie = Movie.get_or_404(movie_id)
     return jsonify([actor.serialize_brief() for actor in movie.actors]), 200
 
 
 @movies_bp.route("/movies/<int:movie_id>/actors", methods=["POST"])
+@requires_auth(PATCH_MOVIES)
 @handle_exception
-def add_movie_actor(movie_id):
+def add_movie_actor(payload, movie_id):
     movie = Movie.get_or_404(movie_id)
     data = request.get_json()
     logger.info(f"Adding actor to movie with ID: {movie_id}, data: {data}")

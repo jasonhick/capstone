@@ -10,6 +10,16 @@ AUTH0_DOMAIN = "dev-jasonhick.uk.auth0.com"
 ALGORITHMS = ["RS256"]
 API_AUDIENCE = "capstone-api"
 
+# Permission constants
+GET_ACTORS = "get:actors"
+GET_MOVIES = "get:movies"
+POST_ACTORS = "post:actors"
+POST_MOVIES = "post:movies"
+PATCH_ACTORS = "patch:actors"
+PATCH_MOVIES = "patch:movies"
+DELETE_ACTORS = "delete:actors"
+DELETE_MOVIES = "delete:movies"
+
 
 class AuthError(Exception):
 

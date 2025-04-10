@@ -1,6 +1,7 @@
 from flask import jsonify
 from werkzeug.exceptions import HTTPException
 
+from ..auth.auth import AuthError
 from .logging import get_logger
 
 logger = get_logger()
@@ -70,6 +71,21 @@ def register_error_handlers(app_or_blueprint):
         response.status_code = 500
         return response
 
+    @app_or_blueprint.errorhandler(AuthError)
+    def handle_auth_error(error):
+        logger.error(
+            f"Auth Error: {error.error.get('description')} - Status: {error.status_code}"
+        )
+        response = jsonify(
+            {
+                "success": False,
+                "error": error.status_code,
+                "message": error.error.get("description", "Authentication error"),
+            }
+        )
+        response.status_code = error.status_code
+        return response
+
 
 def handle_exception(func):
     """Decorator to handle exceptions in route handlers"""
@@ -82,6 +98,9 @@ def handle_exception(func):
             raise
         except HTTPException as e:
             logger.error(f"HTTP Exception in {func.__name__}: {e.description}")
+            raise
+        except AuthError as e:
+            logger.error(f"Auth Error in {func.__name__}: {e.error.get('description')}")
             raise
         except Exception as e:
             logger.exception(f"Unhandled exception in {func.__name__}: {str(e)}")

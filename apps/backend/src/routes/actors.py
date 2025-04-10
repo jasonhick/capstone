@@ -1,11 +1,17 @@
 from flask import Blueprint, jsonify, request
 from werkzeug.exceptions import BadRequest, NotFound, UnprocessableEntity
 
+from ..auth.auth import (
+    DELETE_ACTORS,
+    GET_ACTORS,
+    PATCH_ACTORS,
+    POST_ACTORS,
+    requires_auth,
+)
 from ..common import get_logger
-from ..common.error_handlers import APIError, handle_exception
+from ..common.error_handlers import APIError, handle_exception, register_error_handlers
 from ..database import DBTransaction, db
 from ..models import Actor
-from .error_handlers import register_error_handlers
 
 actors_bp = Blueprint("actors", __name__)
 register_error_handlers(actors_bp)
@@ -15,24 +21,27 @@ logger = get_logger()
 
 
 @actors_bp.route("/actors")
+@requires_auth(GET_ACTORS)
 @handle_exception
-def get_actors():
+def get_actors(payload):
     logger.info("Fetching all actors")
     actors = Actor.get_all()
     return jsonify([actor.serialize() for actor in actors]), 200
 
 
 @actors_bp.route("/actors/<int:actor_id>", methods=["GET"])
+@requires_auth(GET_ACTORS)
 @handle_exception
-def get_actor(actor_id):
+def get_actor(payload, actor_id):
     logger.info(f"Fetching actor with ID: {actor_id}")
     actor = Actor.get_or_404(actor_id)
     return jsonify(actor.serialize()), 200
 
 
 @actors_bp.route("/actors", methods=["POST"])
+@requires_auth(POST_ACTORS)
 @handle_exception
-def create_actor():
+def create_actor(payload):
     data = request.get_json()
     logger.info(f"Creating new actor with data: {data}")
 
@@ -61,8 +70,9 @@ def create_actor():
 
 
 @actors_bp.route("/actors/<int:actor_id>", methods=["PATCH"])
+@requires_auth(PATCH_ACTORS)
 @handle_exception
-def update_actor(actor_id):
+def update_actor(payload, actor_id):
     actor = Actor.get_or_404(actor_id)
     data = request.get_json()
     logger.info(f"Updating actor with ID: {actor_id} with data: {data}")
@@ -96,8 +106,9 @@ def update_actor(actor_id):
 
 
 @actors_bp.route("/actors/<int:actor_id>", methods=["DELETE"])
+@requires_auth(DELETE_ACTORS)
 @handle_exception
-def delete_actor(actor_id):
+def delete_actor(payload, actor_id):
     actor = Actor.get_or_404(actor_id)
     logger.info(f"Deleting actor with ID: {actor_id}")
 
