@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 
 import { AuthService as Auth0Service } from '@auth0/auth0-angular';
-import { Observable } from 'rxjs';
+import { Observable, map, of, catchError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +40,7 @@ export class AuthService {
     return this.auth0.getAccessTokenSilently();
   }
 
-  public getUserInfo(): any {
+  public getUserInfo(): Observable<any> {
     return this.auth0.user$;
   }
 
@@ -50,5 +50,77 @@ export class AuthService {
       isAuthenticated = auth;
     });
     return isAuthenticated;
+  }
+
+  /**
+   * Get all permissions from the JWT token's claims
+   * @returns Observable of string array containing permissions
+   */
+  private getPermissions$(): Observable<string[]> {
+    return this.auth0.getAccessTokenSilently().pipe(
+      map((token) => {
+        const decodedToken = this.parseJwt(token);
+        return decodedToken?.permissions || [];
+      }),
+      catchError(() => of([]))
+    );
+  }
+
+  /**
+   * Parse a JWT token and return the payload
+   */
+  private parseJwt(token: string): any {
+    try {
+      if (!token) return {};
+      // Split the token and get the payload part (second part)
+      const base64Url = token.split('.')[1];
+      if (!base64Url) return {};
+
+      // Convert base64url to regular base64
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+
+      // Decode and parse the JSON
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return {};
+    }
+  }
+
+  /**
+   * Check if the user has a specific permission
+   * @param permission The permission to check for
+   * @returns Observable<boolean> indicating if the user has the permission
+   */
+  public hasPermission$(permission: string): Observable<boolean> {
+    return this.getPermissions$().pipe(map((permissions) => permissions.includes(permission)));
+  }
+
+  /**
+   * Check if the user has any of the specified permissions
+   * @param permissions Array of permissions to check
+   * @returns Observable<boolean> true if user has any of the permissions
+   */
+  public hasAnyPermission$(permissions: string[]): Observable<boolean> {
+    return this.getPermissions$().pipe(
+      map((userPermissions) => permissions.some((permission) => userPermissions.includes(permission)))
+    );
+  }
+
+  /**
+   * Check if the user has all of the specified permissions
+   * @param permissions Array of permissions to check
+   * @returns Observable<boolean> true if user has all permissions
+   */
+  public hasAllPermissions$(permissions: string[]): Observable<boolean> {
+    return this.getPermissions$().pipe(
+      map((userPermissions) => permissions.every((permission) => userPermissions.includes(permission)))
+    );
   }
 }

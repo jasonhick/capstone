@@ -1,0 +1,45 @@
+<div class="max-w-md mx-auto p-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">{{ isEditMode ? 'Edit Movie' : 'Add Movie' }}</h1>
+    <button 
+      class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded"
+      (click)="onBack()">
+      Back
+    </button>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="space-y-4">
+    <div>
+      <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+      <input
+        type="text"
+        id="title"
+        name="title"
+        [(ngModel)]="movie.title"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      />
+    </div>
+
+    <div>
+      <label for="release_date" class="block text-sm font-medium text-gray-700">Release Date</label>
+      <input
+        type="date"
+        id="release_date"
+        name="release_date"
+        [(ngModel)]="movie.release_date"
+        required
+        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      />
+    </div>
+
+    <div class="flex justify-end">
+      <button
+        type="submit"
+        class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+      >
+        {{ isEditMode ? 'Update' : 'Create' }}
+      </button>
+    </div>
+  </form>
+</div> 

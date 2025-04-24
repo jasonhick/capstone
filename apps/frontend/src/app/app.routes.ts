@@ -17,8 +17,28 @@ export const routes: Routes = [
         loadComponent: () => import('./components/actors/actors.component').then((m) => m.ActorsComponent),
       },
       {
+        path: 'actors/add',
+        loadComponent: () =>
+          import('./components/actors/actor-form/actor-form.component').then((m) => m.ActorFormComponent),
+      },
+      {
+        path: 'actors/:id',
+        loadComponent: () =>
+          import('./components/actors/actor-form/actor-form.component').then((m) => m.ActorFormComponent),
+      },
+      {
         path: 'movies',
         loadComponent: () => import('./components/movies/movies.component').then((m) => m.MoviesComponent),
+      },
+      {
+        path: 'movies/add',
+        loadComponent: () =>
+          import('./components/movies/movie-form/movie-form.component').then((m) => m.MovieFormComponent),
+      },
+      {
+        path: 'movies/:id',
+        loadComponent: () =>
+          import('./components/movies/movie-form/movie-form.component').then((m) => m.MovieFormComponent),
       },
     ],
   },
